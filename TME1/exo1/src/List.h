@@ -12,7 +12,10 @@ public :
 	std::string data;
 	Chainon * next;
 	Chainon (const std::string & data, Chainon * next=nullptr);
-	size_t length() ;
+
+	// FAUTE size_t dans std::
+	std::size_t length() ;
+
 	void print (std::ostream & os) const;
 };
 
@@ -31,22 +34,28 @@ public:
 		}
 	}
 
-	const std::string & operator[] (size_t index) const ;
+	// FAUTE size_t dans std::
+	const std::string & operator[] (std::size_t index) const ;
 
 	void push_back (const std::string& val) ;
 
-	void push_front (const std::string& val) {
+	// FAUTE push_front définit dans List.cpp
+	void push_front (const std::string& val); /*{
 		tete = new Chainon(val,tete);
-	}
+	}*/
 
 	bool empty() ;
 
-	size_t size() const ;
+	// FAUTE size_t dans std::
+	std::size_t size() const ;
 };
 
 
-std::ostream & operator<< (std::ostream & os, const List & vec) ;
+
 
 } /* namespace pr */
+
+// FAUTE sortir du namespace
+std::ostream & operator<< (std::ostream & os, const pr::List & vec) ;
 
 #endif /* SRC_LIST_H_ */

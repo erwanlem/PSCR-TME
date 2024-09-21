@@ -1,29 +1,37 @@
+// FAUTE pas de include "List.h"
+#include "List.h"
+
 
 namespace pr {
 
 // ******************* Chainon
 Chainon::Chainon (const std::string & data, Chainon * next):data(data),next(next) {};
 
-size_t Chainon::length() {
-	size_t len = 1;
+// FAUTE size_t dans std::
+std::size_t Chainon::length() {
+	std::size_t len = 1;
 	if (next != nullptr) {
 		len += next->length();
 	}
-	return length();
+	return len; // FAUTE récursion infinie length();
 }
 
-void Chainon::print (std::ostream & os) {
+
+// FAUTE de correspond pas à la définition de print dans List.h
+void Chainon::print (std::ostream & os) const {
 	os << data ;
 	if (next != nullptr) {
 		os << ", ";
+	} else {
+		return ;
 	}
 	next->print(os);
 }
 
 // ******************  List
-const std::string & List::operator[] (size_t index) const  {
+const std::string & List::operator[] (std::size_t index) const  {
 	Chainon * it = tete;
-	for (size_t i=0; i < index ; i++) {
+	for (std::size_t i=0; i < index ; i++) {
 		it = it->next;
 	}
 	return it->data;
@@ -45,11 +53,12 @@ void List::push_front (const std::string& val) {
 	tete = new Chainon(val,tete);
 }
 
-bool empty() {
+// FAUTE manque List::
+bool List::empty() {
 	return tete == nullptr;
 }
 
-size_t List::size() const {
+std::size_t List::size() const {
 	if (tete == nullptr) {
 		return 0;
 	} else {
