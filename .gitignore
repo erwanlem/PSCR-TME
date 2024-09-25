@@ -1,0 +1,7 @@
+*.o
+*.in
+*~
+*.log
+*.status
+*.cache/
+*.m4
