@@ -4,6 +4,7 @@
 #include <chrono>
 
 #include "hashmap.h"
+#include "algorithm.h"
 #include "vector.h"
 #include "list.h"
 
@@ -20,6 +21,7 @@ void add_in_pair(std::vector<std::pair<std::string, int>>& v, std::string w) {
 	}
 	v.push_back(pair<string, int>(w, 1));
 }
+
 
 
 
@@ -105,13 +107,21 @@ int main () {
 	//cout << "war : " << *(hm.get("war")) << endl;
 	//cout << "peace : " << *(hm.get("peace")) << endl;
 
-	vector<pair<string, int>> cpy = hm.extract();
+	/*vector<pair<string, int>> cpy = hm.extract();
 
 	sort(cpy.begin(), cpy.end(), [] (pair<string, int>& e1, pair<string, int>& e2) {return e1.second > e2.second;});
 
 	for (int i = 0; i < 10; i++) {
 		cout << cpy[i].first << " : " << cpy[i].second << endl;
-	}
+	}*/
+
+	/*for (auto e : hm) {
+		cout << e.key << " - " << e.value << endl;
+	}*/
+
+	cout << "COUNT : " << count(hm.begin(), hm.end()) << endl;
+
+	//cout << "COUNT IF EQUAL : " << count_if_equal(hm.begin(), hm.end(), "the") << endl;
 
     return 0;
 }

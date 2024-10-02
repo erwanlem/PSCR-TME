@@ -23,7 +23,9 @@ class Vector {
     }
 
     public:
-    Vector(size_t cap = 10) : capacity(cap), sz(0) {
+    typedef T* iterator;
+
+    Vector(size_t cap = 10) : capacity(cap), sz(cap) {
         tab = new T[capacity];
     }
     T& operator[] (size_t index) {
@@ -39,6 +41,7 @@ class Vector {
 
     size_t size() const {return sz;}
 
-    char* begin() const {return tab;}
-    char* end() const {return &tab[sz];}
+    iterator begin() const {return tab;}
+    iterator end() const {return tab+sz;}
+
 };
