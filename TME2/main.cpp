@@ -119,7 +119,7 @@ int main () {
 
 	// TME3 Question 5
 	vector<pair<string, int>> hashentries = vector<pair<string, int>>(0);
-	for (auto e : hm) {
+	/*for (auto e : hm) {
 		cout << e.key << " - " << e.value << endl;
 		hashentries.push_back(pair<string, int>(e.key, e.value));
 	}
@@ -127,7 +127,7 @@ int main () {
 	sort(hashentries.begin(), hashentries.end(), [] (pair<string, int> p1, pair<string, int> p2) { return p1.second > p2.second; });
 	for (int i = 0; i < 10; i++) {
 		cout << hashentries[i].first << " : " << hashentries[i].second << endl;
-	}
+	}*/
 
 	cout << "COUNT : " << count(hm.begin(), hm.end()) << endl;
 

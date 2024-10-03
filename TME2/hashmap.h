@@ -15,7 +15,8 @@ class HashMap {
     };
 
     typedef vector<forward_list<Entry>> buckets_t;
-    buckets_t buckets;
+    buckets_t _buckets;
+    int entriesNumber;
 
     public:
     class iterator {
@@ -46,16 +47,15 @@ class HashMap {
         }
 
         iterator operator++(int) {
+            // Same function as operator++() but postfix
             iterator ret(it_vect, it_list);
-            if (!(it_vect->empty()) && ++it_list != it_vect->end()) {
-                return ret;
-            } else {
+            if (!(it_vect->empty()) && ++it_list != it_vect->end()) ;
+            else {
                 it_vect++;
                 while (it_vect->empty()) it_vect++;
                 it_list = (it_vect->begin());
-                return ret;
             }
-            //return ret;
+            return ret;
         }
 
         Entry operator*() {
@@ -73,42 +73,60 @@ class HashMap {
 
     };
 
-    HashMap() : buckets(vector<forward_list<Entry>>(4096)) {
-        
-    };
+    HashMap(int initial_size = 16) 
+    : _buckets(vector<forward_list<Entry>>(initial_size))
+    , entriesNumber(0) {};
 
+
+
+    /**
+     * returns the value associated with the given key
+     * if the key doesn't exist returns nullptr
+     */
     V* get(const K& key) {
         size_t h = hash<K>()(key);
-        size_t pos = h % buckets.size();
+        size_t pos = h % _buckets.size();
 
-        for (Entry& e : buckets[pos]) {
+        for (Entry& e : _buckets[pos]) {
             if (e.key == key) return &e.value;
         }
         return nullptr;
     }
 
+    /**
+     * adds an element in the hashmap
+     */
     bool put(const K& key, const V& value) {
         size_t h = hash<K>()(key);
-        size_t pos = h % buckets.size();
+        size_t pos = h % _buckets.size();
 
-        for (Entry& e : buckets[pos]) {
+        for (Entry& e : _buckets[pos]) {
             if (e.key == key) {
                 e.value = value;
                 return true;
             }
         }
-        buckets[pos].push_front(Entry(key, value));
+        _buckets[pos].push_front(Entry(key, value));
+        entriesNumber++;
+        grow();
         return true;
     }
 
+    /**
+     * returns the size of the hashmap
+     */
     size_t size() const {
-        return buckets.size();
+        return entriesNumber;
     }
 
+
+    /**
+     * returns a vector containing every pair in the hashmap
+     */
     vector<pair<K, V>> extract() {
         vector<pair<K, V>> vec = vector<pair<K, V>>();
 
-        for (auto& lst : buckets) {
+        for (auto& lst : _buckets) {
             for (auto& p : lst) {
                 vec.push_back(pair<string, int>(p.key, p.value));
             }
@@ -119,11 +137,23 @@ class HashMap {
 
 
     iterator begin() {
-        return iterator(buckets.begin(), (*(buckets.begin())).begin());
+        return iterator(_buckets.begin(), (*(_buckets.begin())).begin());
     }
 
     iterator end() {
-        return iterator(buckets.end(), (buckets.back()).end());
+        return iterator(_buckets.end(), (_buckets.back()).end());
     }
+
+    private:
+
+        void grow() {
+            if ( entriesNumber > 10 * _buckets.size() ) {
+                HashMap<K, V> tmp(this->_buckets.size()*2);
+                for (Entry e : *this) {
+                    tmp.put(e.key, e.value);
+                }
+                this->_buckets = tmp._buckets;
+            }
+        }
 
 };
