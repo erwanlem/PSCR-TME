@@ -48,13 +48,14 @@ class HashMap {
         iterator operator++(int) {
             iterator ret(it_vect, it_list);
             if (!(it_vect->empty()) && ++it_list != it_vect->end()) {
-                ;
+                return ret;
             } else {
                 it_vect++;
                 while (it_vect->empty()) it_vect++;
                 it_list = (it_vect->begin());
+                return ret;
             }
-            return ret;
+            //return ret;
         }
 
         Entry operator*() {
