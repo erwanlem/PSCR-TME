@@ -34,8 +34,10 @@ void Pool::start(int nbWorker) {
 void Pool::stop() {
 	queue.setBlocking(false);
 
-	for (auto& t : threads)
+	for (auto& t : threads) {
 		t.join();
+	}
+		
 	threads.clear();
 }
 

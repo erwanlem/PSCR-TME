@@ -12,7 +12,7 @@
 
 #include "Queue.h"
 
-#include <barrier>
+#include "Barrier.h"
 
 using namespace std;
 using namespace pr;
@@ -136,37 +136,25 @@ class PixelJob : public Job {
 	Scene &scene;
 	Color * pixels;
 	const Scene::screen_t &screen;
+	pr::Barrier &barrier;
 
 	public :
-	PixelJob(int x, int y, vector<Vec3D> &lights, Scene &scene, Color * pixels, const Scene::screen_t &screen) 
+	PixelJob(int x, int y, vector<Vec3D> &lights, Scene &scene, Color * pixels, const Scene::screen_t &screen, pr::Barrier &b) 
 	: x(x)
 	, y(y)
 	, lights(lights)
 	, scene(scene)
 	, pixels(pixels)
 	, screen(screen)
+	, barrier(b)
 	{}
 	
 	void run () {
 		calcul(x, y, lights, scene, pixels, screen);
+		barrier.done();
 	}
 	~PixelJob(){}
 };
-
-
-
-void work(Queue<Job>& queue) {
-	while (true) {
-		printf("LOOP\n");
-		Job* j = queue.pop();
-		if (j == nullptr) {
-			printf("QUIT\n");
-			return ;
-		}
-		j->run();
-		delete j;
-	}
-}
 
 // NB : en francais pour le cours, preferez coder en english toujours.
 // pas d'accents pour eviter les soucis d'encodage
@@ -195,17 +183,19 @@ int main () {
 	// Les couleurs des pixels dans l'image finale
 	Color * pixels = new Color[scene.getWidth() * scene.getHeight()];
 
-	
+	pr::Barrier barrier(scene.getWidth() * scene.getHeight());
 	pr::Pool pool(1000);
-	//std::barrier b(scene.getWidth() * scene.getHeight());
-	pool.start(32);
+	
+	pool.start(8);
 
 	// pour chaque pixel, calculer sa couleur
 	for (int x =0 ; x < scene.getWidth() ; x++) {
 		for (int  y = 0 ; y < scene.getHeight() ; y++) {
-			pool.submit(new PixelJob(x, y, lights, scene, pixels, screen));
+			pool.submit(new PixelJob(x, y, lights, scene, pixels, screen, barrier));
 		}
 	}
+
+	barrier.waitFor();
 
 	pool.stop();
 

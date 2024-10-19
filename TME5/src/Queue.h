@@ -18,6 +18,8 @@ class Queue {
 	mutable std::mutex m;
 	std::condition_variable cond;
 	
+	std::condition_variable emptyCond, fullCond;
+
 	bool isBlocking;
 	
 
@@ -40,48 +42,49 @@ public:
 	}
 
 	T* pop() {
-
 		std::unique_lock<std::mutex> lg(m);
 		while (empty() && isBlocking) {
-			cond.wait(lg);
-			if (empty()) return nullptr;
+			//cond.wait(lg);
+			emptyCond.wait(lg);
 		}
+		if (empty()) return nullptr;
 		auto ret = tab[begin];
 		tab[begin] = nullptr;
 		sz--;
 		begin = (begin + 1) % allocsize;
 
 
-		if (sz == allocsize-1) cond.notify_all();
+		fullCond.notify_one();
 		return ret;
 	}
 
 	bool push(T* elt) {
 		std::unique_lock<std::mutex> lg(m);
 		while (full() && isBlocking) {
-			cond.wait(lg);
-			if (full()) return false;
+			fullCond.wait(lg);
 		}
+		if (full()) return false;
 		tab[(begin + sz) % allocsize] = elt;
 		sz++;
 
-		if (sz == 1) cond.notify_all();
+		emptyCond.notify_one();
 		return true;
 	}
 
 	void setBlocking (bool block) {
 		std::unique_lock<std::mutex> l(m);
 		isBlocking = block;
-		cond.notify_all();
+		fullCond.notify_all();
+		emptyCond.notify_all();
 	}
 
 	~Queue() {
 		// ?? lock a priori inutile, ne pas detruire si on travaille encore avec
-		/*for (size_t i = 0; i < sz; i++) {
+		for (size_t i = 0; i < sz; i++) {
 			auto ind = (begin + i) % allocsize;
-			delete tab[ind];
+			if (tab[ind] == nullptr) delete tab[ind];
 		}
-		delete[] tab;*/
+		delete[] tab;
 	}
 };
 
