@@ -106,27 +106,29 @@ void exportImage(const char * path, size_t width, size_t height, Color * pixels)
 }
 
 
-
 class PixelJob : public Job {
 	void calcul (int x, int y, vector<Vec3D> &lights, Scene &scene, Color *pixels, const Scene::screen_t &screen) {
-		// le point de l'ecran par lequel passe ce rayon
-		auto & screenPoint = screen[y][x];
-		// le rayon a inspecter
-		Rayon  ray(scene.getCameraPos(), screenPoint);
 
-		int targetSphere = findClosestInter(scene, ray);
+		for (int  y = 0 ; y < scene.getHeight() ; y++) {
+			// le point de l'ecran par lequel passe ce rayon
+			auto & screenPoint = screen[y][x];
+			// le rayon a inspecter
+			Rayon  ray(scene.getCameraPos(), screenPoint);
 
-		if (targetSphere == -1) {
-			// keep background color
-			return ;
-		} else {
-			const Sphere & obj = *(scene.begin() + targetSphere);
-			// pixel prend la couleur de l'objet
-			Color finalcolor = computeColor(obj, ray, scene.getCameraPos(), lights);
-			// le point de l'image (pixel) dont on vient de calculer la couleur
-			Color & pixel = pixels[y*scene.getHeight() + x];
-			// mettre a jour la couleur du pixel dans l'image finale.
-			pixel = finalcolor;
+			int targetSphere = findClosestInter(scene, ray);
+
+			if (targetSphere == -1) {
+				// keep background color
+				return ;
+			} else {
+				const Sphere & obj = *(scene.begin() + targetSphere);
+				// pixel prend la couleur de l'objet
+				Color finalcolor = computeColor(obj, ray, scene.getCameraPos(), lights);
+				// le point de l'image (pixel) dont on vient de calculer la couleur
+				Color & pixel = pixels[y*scene.getHeight() + x];
+				// mettre a jour la couleur du pixel dans l'image finale.
+				pixel = finalcolor;
+			}
 		}
 	}
 	
