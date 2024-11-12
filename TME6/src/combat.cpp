@@ -69,17 +69,17 @@ void defenseLuke() {
     act.sa_handler = &defenseHandler;
     sigaction(SIGINT, &act, NULL);
 
-    sigset_t setPos;
+    sigset_t setPos, oldMask;
     sigemptyset(&setPos);
     sigaddset(&setPos, SIGINT);
-    sigprocmask(SIG_SETMASK, &setPos, NULL);
+    sigprocmask(SIG_SETMASK, &setPos, &oldMask);
 
     //signal(SIGINT, SIG_IGN);
     randsleep();
 
     //sigdelset(&setPos, SIGINT);
-    sigsuspend(&setPos);
-    //sigprocmask( SIG_SETMASK, &setPos, NULL );
+    sigsuspend(&oldMask);
+    sigprocmask( SIG_SETMASK, &setPos, NULL );
 }
 
 void combat(pid_t adversaire) {
