@@ -30,13 +30,13 @@ void handler(int sig) {
     signal(SIGINT, &handler);
 }
 
+void handler_defense(int sig) {
+    std::cout << "Coup paré ! (" << name << ")" << std::endl;
+}
+
 
 void attaque(pid_t adversaire) {
-    struct sigaction act;
-    sigfillset(&act.sa_mask);
-    act.sa_flags = 0;
-    act.sa_handler = &handler;
-
+    signal(SIGINT, handler);
 
     if (kill(adversaire, SIGINT) == -1 ) exit(0);
     
@@ -45,28 +45,62 @@ void attaque(pid_t adversaire) {
 }
 
 void defense() {
-    signal(SIGINT, SIG_IGN);
+    struct sigaction act;
+    sigfillset(&act.sa_mask);
+    act.sa_flags = 0;
+    act.sa_handler = &defenseHandler;
+    sigaction(SIGINT, &act, NULL);
+/*
+    sigset_t setPos;
+    sigemptyset(&setPos);
+    sigaddset(&setPos, SIGINT);
+    sigprocmask(SIG_SETMASK, &setPos, NULL);*/
 
+    //signal(SIGINT, SIG_IGN);
     randsleep();
+
+    //sigsuspend(&setPos);
+}
+
+void defenseLuke() {
+    struct sigaction act;
+    sigfillset(&act.sa_mask);
+    act.sa_flags = 0;
+    act.sa_handler = &defenseHandler;
+    sigaction(SIGINT, &act, NULL);
+
+    sigset_t setPos;
+    sigemptyset(&setPos);
+    sigaddset(&setPos, SIGINT);
+    sigprocmask(SIG_SETMASK, &setPos, NULL);
+
+    //signal(SIGINT, SIG_IGN);
+    randsleep();
+
+    //sigdelset(&setPos, SIGINT);
+    sigsuspend(&setPos);
+    //sigprocmask( SIG_SETMASK, &setPos, NULL );
 }
 
 void combat(pid_t adversaire) {
     while (true) {
-        defense();
+        if (name == "Luke") defenseLuke();
+        else defense();
+
         attaque(adversaire);
     }
 }
 
 int main(int argc, char const *argv[])
 {
-    srand(time(NULL));
-
     pid_t f = fork();
 
     if (f == 0) {
+        srand(time(NULL));
         name = "Luke";
         combat(getppid());
     } else {
+        srand(time(NULL));
         signal(SIGCHLD, exitHandler);
 
         name = "Vader";
