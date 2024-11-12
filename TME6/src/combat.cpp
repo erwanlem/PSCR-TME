@@ -15,7 +15,7 @@ void exitHandler(int sig) { exit(0); }
 
 
 void defenseHandler(int sig) {
-    std::cout << "";
+    std::cout << "Coup paré !" << endl;
 }
 
 
@@ -28,10 +28,6 @@ void handler(int sig) {
     }
 
     signal(SIGINT, &handler);
-}
-
-void handler_defense(int sig) {
-    std::cout << "Coup paré ! (" << name << ")" << std::endl;
 }
 
 
@@ -50,17 +46,10 @@ void defense() {
     act.sa_flags = 0;
     act.sa_handler = &defenseHandler;
     sigaction(SIGINT, &act, NULL);
-/*
-    sigset_t setPos;
-    sigemptyset(&setPos);
-    sigaddset(&setPos, SIGINT);
-    sigprocmask(SIG_SETMASK, &setPos, NULL);*/
 
-    //signal(SIGINT, SIG_IGN);
     randsleep();
-
-    //sigsuspend(&setPos);
 }
+
 
 void defenseLuke() {
     struct sigaction act;
@@ -72,14 +61,12 @@ void defenseLuke() {
     sigset_t setPos, oldMask;
     sigemptyset(&setPos);
     sigaddset(&setPos, SIGINT);
-    sigprocmask(SIG_SETMASK, &setPos, &oldMask);
+    sigprocmask(SIG_BLOCK, &setPos, &oldMask);
 
-    //signal(SIGINT, SIG_IGN);
     randsleep();
 
-    //sigdelset(&setPos, SIGINT);
     sigsuspend(&oldMask);
-    sigprocmask( SIG_SETMASK, &setPos, NULL );
+    sigprocmask( SIG_UNBLOCK, &setPos, NULL );
 }
 
 void combat(pid_t adversaire) {
@@ -90,6 +77,8 @@ void combat(pid_t adversaire) {
         attaque(adversaire);
     }
 }
+
+
 
 int main(int argc, char const *argv[])
 {
