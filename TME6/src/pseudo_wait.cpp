@@ -23,18 +23,18 @@ int wait_till_pid (pid_t pid, int sec) {
     sigaddset(&setSig, SIGCHLD);
 
     sigprocmask(SIG_BLOCK, &setSig, NULL);
+    int sig;
 
     alarm(sec);
+    while (1) {
+        sigwait(&setSig, &sig);
 
-    int sig;
-    sigwait(&setSig, &sig);   
-
-    if (sig == SIGCHLD) {
-        alarm(0);
-        wait(NULL);
-        return pid;
+        if (sig == SIGCHLD && wait(NULL) == pid) {
+            alarm(0);
+            return pid;
+        }
+        else return 0;
     }
-    else return 0;
 }
 
 int main(int argc, char const *argv[])
@@ -44,7 +44,7 @@ int main(int argc, char const *argv[])
     if (f == 0) {
         sleep(3);
     } else {
-        std::cout << "pid = " << wait_till_pid(f, 2) << std::endl;
+        std::cout << "pid = " << wait_till_pid(1, 2) << std::endl;
     }
 
     return 0;
