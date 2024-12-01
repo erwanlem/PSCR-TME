@@ -22,6 +22,12 @@ public :
 		sem_init(&sem_push, 1, STACKSIZE);
 	}
 
+	~Stack() {
+		sem_destroy(&sem);
+		sem_destroy(&sem_push);
+		sem_destroy(&sem_pop);
+	}
+
 	T pop () {
 		// bloquer si vide
 
